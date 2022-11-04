@@ -28,13 +28,13 @@ async function run() {
             const users = await cursor.toArray();
             res.send(users);
         });
-        
+
         app.get('/users/:id', async(req, res) => {
             const id = req.params.id;
             const query = {_id: ObjectId(id)};
             const user = await userCollection.findOne(query);
             res.send(user);
-        })
+        });
         
         // create document to insert or post data API
         app.post('/users', async(req, res) => {
@@ -43,6 +43,22 @@ async function run() {
             const result = await userCollection.insertOne(user);
             res.send(result);
         });
+
+        app.put('/users/:id', async(req, res) => {
+            const id = req.params.id;
+            const filter = {_id: ObjectId(id)};
+            const user = req.body;
+            const option = {upsert: true};
+            const updatedUser = {
+                $set: {
+                    name: user.name,
+                    address: user.address,
+                    email: user.email
+                }
+            }
+            const result = await userCollection.updateOne(filter, updatedUser, option);
+            res.send(result);
+        })
 
         // delete data
         app.delete('/users/:id', async(req, res) => {
